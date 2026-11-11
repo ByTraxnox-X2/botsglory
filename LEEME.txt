@@ -1,0 +1,179 @@
+================================================================
+  GUILD GLORY BOT v14.4  —  escuadras de bots para Free Fire
+================================================================
+
+COMO SUBIRLO AL HOSTING (Webs en Node)
+--------------------------------------
+1. Entra al panel del hosting y DETEN el servidor.
+2. Sube este ZIP y descomprimelo en la carpeta principal.
+3. En Startup, el comando ya es "npm install && node index.js".
+   Si te pide un archivo de inicio, pon: index.js
+4. Inicia el servidor y espera un minuto.
+5. Abre la direccion del hosting en el navegador.
+
+La pagina principal se ve SIN contrasena (clanes, honor, bots).
+El panel de control completo esta en:  tu-direccion/admin
+Ahi te va a pedir usuario y contrasena:
+   usuario: admin
+   contrasena: 6uKC00-voAgKb
+
+Eso esta guardado en el archivo .env, ahi lo puedes cambiar cuando
+quieras (y reinicias el servidor para que tome la nueva).
+
+
+QUE HACE EL PANEL
+-----------------
+- ESCUADRA: ves los 4 lugares de la escuadra con el nombre de cada
+  bot y que esta haciendo (jugando, buscando partida, pausado...).
+  Tambien el codigo del equipo con boton para copiarlo, y las
+  cifras: partidas iniciadas, partidas terminadas, experiencia
+  ganada y cuanto lleva encendido.
+- BOTS: la lista completa. En cada uno puedes pausar o reanudar,
+  reiniciarlo, pedirle sus datos al juego o quitarlo del panel.
+  Arriba tienes "Pausar todos".
+- CLAN: cambio de clan programado (dia y hora de salida y entrada,
+  repetir cada X dias) y botones para hacerlo ya.
+- SERVIDOR: CPU, RAM, disco, red y cuanto usa el bot, con una linea
+  de los ultimos 6 minutos. Arriba en ESCUADRA tambien sale un
+  resumen (CPU / RAM / Disco); si tocas ahi te lleva a SERVIDOR.
+- CONSOLA: todo lo que va haciendo el bot, en espanol, con filtros
+  (Listo / Avisos / Errores / Detalles).
+
+Las escuadras salen agrupadas por el clan en el que estan sus bots.
+Con el lapiz al lado del ID le pones un nombre al clan.
+
+PARA PONERLO EN UN VPS DE ORACLE: lee ORACLE.txt (paso a paso).
+
+
+ESCUADRAS
+---------
+Un equipo de Free Fire solo tiene 4 lugares, asi que los bots se
+reparten de 4 en 4. Cada escuadra tiene su propio lider, su propio
+codigo de equipo y juega sus propias partidas.
+
+A que escuadra pertenece cada cuenta queda guardado en accounts.json
+(campo "squad"), asi no se mueven de grupo cuando reinicias.
+
+Si una escuadra tiene menos de 4, en el panel te salen dos botones:
+ - "Completar con 1 bot": crea una cuenta nueva para ESA escuadra,
+   con la misma region y el mismo clan que los demas.
+ - "Entrar yo": para jugar tu con ellos en el lugar libre.
+
+ENTRAR TU CON LOS BOTS
+----------------------
+En la escuadra que tenga lugar libre toca "Entrar yo". Ahi puedes:
+ - Copiar el codigo de equipo y meterlo en el juego.
+ - Escribir tu ID de Free Fire y tocar "Que el lider me invite".
+ - Tocar "Esperarme 5 min" para que no busquen partida mientras entras.
+   Si estan en partida, la espera empieza cuando esa partida termine.
+El codigo aparece cuando el lider ya armo el equipo. Mientras diga
+"todavia no hay", espera: "Esperarme" y "Que el lider me invite" solo
+funcionan con el equipo ya armado.
+Cuando ya estes dentro, toca "Ya entre, buscar partida".
+Al terminar, si no quieres seguir con ellos, sal del equipo desde el juego.
+
+
+ENTRE UNA PARTIDA Y OTRA
+------------------------
+Cada escuadra tiene UN lider fijo: el primer bot de esa escuadra (el
+de arriba en el panel). Solo el arma el equipo, invita y le da a
+INICIAR. Los demas solo aceptan la invitacion de su lider.
+
+Dentro de la partida un bot que muere NUNCA se va antes de tiempo:
+ - Duelo de escuadras (MODO_JUEGO 4 o 5): es por rondas. El que muere
+   mira a los suyos hasta que termina la ronda y en la siguiente revive.
+   Aunque mueran los 4 siguen en la partida; salen cuando termina la
+   partida entera.
+ - Battle Royale: el que muere se queda mirando a su escuadra mientras
+   quede alguno vivo (en el panel dice "Murio - mira a su escuadra").
+   Cuando muere el ultimo (o se termina la partida), vuelven todos
+   juntos al lobby.
+
+Al volver al lobby:
+ 1. Cada bot sale del equipo y queda solo.
+ 2. El lider espera 2 segundos y arma un equipo nuevo.
+ 3. Invita a sus companeros (cada uno acepta una sola vez). Si a alguno
+    no le llega la invitacion, entra con el codigo del equipo.
+ 4. Apenas estan todos, le da a INICIAR (a los que faltan los vuelve a
+    invitar cada 8 segundos; si alguno no entra en 25 segundos, inicia
+    con los que estan).
+Los que no son lider no crean equipo ni hacen nada: solo esperan la
+invitacion de su lider (en el panel: "Esperando a su lider").
+Si en 2 minutos y medio no encuentra partida, vuelve a armar el equipo
+desde cero, con el MISMO lider (ya no le pasa el mando a otro bot).
+
+Al encender una escuadra (o ponerla en el clan) el lider espera como
+mucho 10 segundos a que entren los suyos. Si falta alguno, arma el
+equipo igual y lo invita apenas entra. Le da a INICIAR cuando estan
+todos (si alguno no entra en 1 minuto, juegan los que estan).
+
+Si el lider se desconecta, la escuadra lo espera. Solo si pasan 60
+segundos y no vuelve, el siguiente bot lleva el equipo mientras tanto;
+cuando el lider vuelve, retoma el mando al empezar la siguiente ronda.
+Si pausas al lider desde el panel, lleva el equipo el siguiente.
+
+Si entras tu al equipo ("Entrar yo"), durante 1 hora los bots NO se
+salen al terminar cada partida: siguen jugando contigo en el mismo
+equipo. Despues vuelven solos a lo normal.
+Si pasan 10 minutos seguidos sin partida estando tu dentro (por ejemplo,
+si el lider se desconecta), el equipo se arma de nuevo. Entonces tienes
+que volver a entrar con el codigo.
+
+MODO DE JUEGO: se elige arriba de todo en main.py (MODO_JUEGO).
+Si el modo elegido no arma equipo o no encuentra partida 2 veces
+seguidas, esa escuadra juega Battle Royale clasico 1 hora y despues
+vuelve a probar el modo elegido. Asi nunca se queda parada.
+
+En el panel cada escuadra dice en que esta: esperando a sus bots,
+armando el equipo, buscando partida, en partida o sin lider, y desde
+hace cuantos minutos.
+
+
+CREAR LAS CUENTAS
+-----------------
+En ESCUADRA toca "Crear escuadra":
+ - Region: US, BR, SAC (Sudamerica), IND, ID o BD.
+ - ID del clan: el numero de tu clan.
+ - Cuantas escuadras: de 1 a 10. Se crean una tras otra. Si una no
+   logra crear ningun bot (Garena esta rechazando), se para ahi.
+ - Bots por escuadra: de 1 a 4.
+ - Contrasena: la que se le pone a las cuentas nuevas.
+
+Los bots de la escuadra se crean uno por uno. Ninguno se enciende hasta
+que estan creados TODOS (si alguno no se pudo crear tras sus 10 intentos,
+se encienden los que si). Entonces se encienden juntos: cada uno entra al
+clan y el lider arma el equipo con todos. Ninguno empieza a jugar antes
+que los demas. Si Garena rechaza seguido, esto puede tardar varios
+minutos; mientras tanto la consola dice cuantos van creados.
+
+Las cuentas se crean con el nombre BYTRXXX_ y 5 letras o numeros
+al azar. Por ejemplo: BYTRXXX_A4K9Z
+
+Si quieres cambiar ese nombre, esta en main.py arriba de todo:
+   NICK_PREFIX = "BYTRXXX_"
+
+
+ARCHIVOS
+--------
+main.py            el bot
+panel/index.html   la pagina
+index.js           arranca el bot en el hosting de Node
+.env               usuario y contrasena del panel, y dos opciones de partida:
+                   SALIDA_AL_TERMINAR=1 (al terminar la partida, la escuadra
+                   se desconecta, vuelve a entrar y arma el equipo otra vez)
+                   SALIDA_AL_MORIR=0 (1 = sale enseguida cuando muere alguien)
+vendor/            librerias de Python (no las borres)
+accounts.json      se crea solo, ahi quedan tus cuentas
+
+IMPORTANTE: cuando subas una actualizacion, NO reemplaces
+accounts.json ni token_cache.json. Ahi estan tus bots.
+
+
+SI ALGO FALLA
+-------------
+- "Necesitas la contrasena del panel": usuario admin y la
+  contrasena de arriba.
+- La pagina dice "Sin conexion": el bot todavia se esta
+  encendiendo, espera y recarga.
+- "Este hosting no tiene Python": pidele a soporte Python 3.10
+  o mas nuevo.

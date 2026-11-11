@@ -1,0 +1,307 @@
+GUILD GLORY BOT - v14.4
+=======================
+
+v14.4 (los bots de una escuadra se crean todos y luego se encienden juntos)
+ - Antes, cada bot se encendia en cuanto se creaba: entraba al clan y el lider
+   armaba el equipo con los que habia en ese momento. Por eso la escuadra salia
+   a jugar con 2 de 4 y los demas se quedaban esperando fuera del equipo.
+   Ahora se crean TODOS los bots de la escuadra (los que elegiste en "Bots por
+   escuadra") y solo cuando estan todos (o los que fallaron se dieron por
+   perdidos) se encienden juntos. Cada uno pide entrar al clan y el lider arma
+   el equipo con todos.
+ - Si un bot no se puede crear tras sus 10 intentos, los demas se encienden
+   igual con los que si se crearon.
+ - En la consola se ve: "bot N CREADO ... espera a los demas" y luego
+   "Encendiendo los N bots juntos".
+ - Tiempo: los bots ya creados esperan a que termine el mas lento. Si Garena
+   rechaza seguido, puede tardar varios minutos.
+ - "Completar con 1 bot" a una escuadra ya armada no cambia: el bot nuevo se
+   enciende en cuanto se crea y el lider lo invita.
+ - PRUEBAS: test de orden de creacion (la v14.2 falla: un bot se encendia antes
+   de que existieran los demas; la v14.4 pasa). Simulador de escuadras con 4
+   bots que entran juntos: escuadra.py no cambio.
+   OJO: todo esto se probo sin el juego real.
+ - MOVIMIENTO (aviso): en el servidor real la consola sigue diciendo "Ninguna
+   forma de movimiento fue confirmada por el servidor". Eso quiere decir que el
+   servidor no confirma el movimiento. No esta verificado que los bots se mueven.
+
+v14.3 (arreglos de "Entrar yo" con tu cuenta dentro del equipo)
+ - Si entras tu al equipo, los bots ya NO se salen al terminar la partida.
+   En la v14.2, con SALIDA_AL_TERMINAR=1, la salida completa no miraba si
+   estabas dentro: el equipo se deshacía al final de cada partida. Ahora
+   se cumple lo que dice el panel: 1 hora sin salirse. Lo mismo con
+   SALIDA_AL_MORIR.
+ - "Esperarme" y "Que el lider me invite" ya no se pueden tocar hasta que el
+   equipo exista (tiene que aparecer el codigo). En la v14.2, si los tocabas
+   antes, el lider se quedaba esperando a tu cuenta y no armaba el equipo
+   durante una hora. El panel ahora avisa: "Todavia no hay equipo".
+ - Red de seguridad: si estas dentro del equipo y pasan 4 rondas seguidas sin
+   partida (unos 10 minutos), el equipo se arma de nuevo y tendras que volver
+   a entrar con el codigo. Asi no se queda atorado durante la hora entera.
+ - Nota del panel: "Cuando aparezca el codigo, toca Esperarme...".
+ - Pruebas en el simulador de escuadras con 3 bots por escuadra y una cuenta
+   tuya dentro: sin pausas largas con fallas normales. Con fallas fuertes de
+   conexion, a veces se pausa unos 10 minutos antes de recuperarse. Esto no
+   pasa si no entras tu.
+   OJO: todo esto se probo con simuladores, no contra el juego real.
+
+v14.2 (salida al terminar la partida, movimiento revisado, página pública sin IDs)
+ - SALIDA AL TERMINAR LA PARTIDA (encendida): cuando termina la partida, la
+   escuadra se desconecta por completo, vuelve a entrar desde cero y el líder
+   arma el equipo otra vez con sus mismos bots. Cada escuadra va por separado:
+   sus bots solo invitan y aceptan a los de su propia escuadra. Para apagarla:
+   SALIDA_AL_TERMINAR=0 en el .env.
+ - SALIDA AL MORIR (apagada): con SALIDA_AL_MORIR=1, el bot sale en cuanto muere
+   alguien de la partida, para jugar más partidas. Viene apagada porque sale
+   antes de que termine la partida, y eso no se ha probado contra el juego real.
+   Si la pruebas, compara "partidas por hora" en el panel con y sin ella.
+   El modo por rondas (Duelo) no cambia con ninguna de las dos.
+ - MOVIMIENTO: el bot ya no da por bueno el movimiento solo porque llegan
+   paquetes de otros jugadores. Solo cuenta como confirmado cuando el servidor
+   devuelve la posición de ESTA cuenta. Si el servidor no la confirma, prueba
+   las formas de enviarla (3 claves cifradas y la forma sin cifrar del TxT),
+   6 paquetes en cada una. Si ninguna funciona, se queda con la primera y deja
+   de cambiar. Cuando funciona sale en la consola:
+   "[ACTIVIDAD] El servidor CONFIRMA el movimiento".
+   OJO: esto solo se probó con pruebas técnicas, no contra el juego real.
+ - PÁGINA PRINCIPAL: la lista de creación ya no muestra el ID de cuenta de
+   cada bot. Con ese ID y la contraseña se puede entrar a la cuenta.
+ - Se quitó una función vieja del movimiento que nunca se usaba y tenía un
+   nombre sin definir.
+ - .env: SALIDA_AL_TERMINAR=1 (viene encendida) y SALIDA_AL_MORIR=0 (viene apagada).
+
+v14 (página principal pública, creación con intentos, más partidas)
+ - Esta versión parte de la v13.5 (que ya trae todo lo del TxT: escuadras
+   que juegan, la monitor de CPU/RAM/disco y varias escuadras a la vez) y le
+   suma lo de abajo. La v13.5 nunca se había entregado, así que sus arreglos
+   (los bots se quedan en la partida hasta que termina su escuadra, etc.)
+   vienen incluidos.
+ - PÁGINA PRINCIPAL SIN CONTRASEÑA: al abrir la dirección se ve la página
+   del clan: nombre del clan, cantidad de jugadores, honor total del clan y
+   honor semanal. Dentro de cada clan salen sus escuadras con el honor que
+   hizo cada escuadra (y cada bot), las partidas, la EXP y los bots en
+   línea. Arriba salen CPU, RAM, disco y red del hosting.
+   Esa página solo MIRA: no tiene botones, y no muestra contraseñas ni
+   claves de ningún bot.
+ - PANEL COMPLETO EN /admin: crear escuadras, pausar, borrar, cambiar de
+   clan, consola... Todo eso sigue pidiendo usuario y contraseña (la del
+   archivo .env). Cualquier acción que cambie algo pide contraseña, aunque
+   alguien la intente llamar directo.
+ - HONOR POR ESCUADRA: el bot le pregunta al juego por el clan cada minuto y
+   va sumando lo que sube el honor de cada bot. Se guarda en
+   honor_ganado.json para que no se pierda al reiniciar. Cuenta desde que el
+   bot aparece por primera vez en el clan.
+ - CREAR BOTS CON INTENTOS: cada bot se intenta crear hasta 10 veces y se ve
+   "intento 3/10" (en la página y en el panel). Los bots de una escuadra se
+   crean AL MISMO TIEMPO (escalonados 1 segundo) y cada uno se enciende en
+   cuanto está listo, sin esperar a los demás. Así ya no quedan escuadras
+   incompletas: si Garena rechaza, se reintenta solo.
+ - NOMBRES: los bots nuevos se llaman user_ + 6 letras/números al azar
+   (por ejemplo user_k3x9a2).
+ - MODO POR DEFECTO: ahora es Battle Royale clásico (modo 1), como el TxT.
+   Se cambia con MODO=5 en el .env o editando MODO_JUEGO en main.py.
+ - Escuadras un poco más rápidas: menos espera para el código del equipo
+   (3 s), para aceptar la invitación (5 s) y entre rondas fallidas (2 s).
+
+v13.5 (los bots se quedan en la partida hasta que termina su escuadra)
+ - El error grande venía del código original: cuando moría CUALQUIER
+   jugador de la partida (aunque fuera de otro equipo), el bot creía que
+   su partida había terminado y se iba al lobby. En el juego su personaje
+   seguía dentro de la partida, por eso después no le llegaban las
+   invitaciones y la escuadra se quedaba "En línea" / "En equipo" y
+   jugaba solo el líder.
+ - Ahora el bot solo cuenta su propia muerte, y morir nunca lo saca de la
+   partida antes de tiempo:
+     * Duelo de escuadras (el modo que tienes puesto, MODO_JUEGO = 5): la
+       partida es por rondas. El que muere mira a los suyos hasta que
+       termina la ronda y en la siguiente revive. Aunque mueran los 4, siguen
+       en la partida. Salen cuando el juego termina la partida entera.
+     * Battle Royale: el que muere se queda mirando a su escuadra (en el
+       panel: "Murió · mira a su escuadra"). Cuando muere el último, o se
+       termina la partida, vuelven TODOS juntos al lobby.
+   Al volver, salen del equipo, el líder arma uno nuevo, los invita y
+   vuelven a jugar.
+ - Si el servidor dejaba de mandar la partida pero seguía contestando, el
+   bot se quedaba "En partida" hasta 25 minutos. Ahora, si en 45 segundos
+   no llega nada de la partida, sale (menos si está muerto mirando a sus
+   compañeros que siguen vivos). También se da cuenta cuando el servidor
+   cierra la partida (antes no lo veía).
+ - Los que no son líder ya no hacen nada por su cuenta: no crean equipo ni
+   le dan a INICIAR. Solo esperan la invitación de su líder (en el panel:
+   "Esperando a su líder"). Si la invitación no les llega en 4 segundos,
+   entran con el código del equipo, como haría una persona.
+ - El líder espera a tener a TODOS los suyos dentro del equipo antes de
+   darle a INICIAR (los vuelve a invitar cada 8 segundos). Si alguno no
+   entra en 25 segundos, inicia con los que están.
+ - Al encender una escuadra o ponerla en el clan: antes el líder esperaba
+   hasta 2 minutos a que se conectaran todos sus bots y mientras tanto los
+   demás se quedaban "En línea". Ahora espera como mucho 10 segundos, arma
+   el equipo y va invitando a los que van entrando.
+ - Más rápido entre partidas: el líder arma el equipo 2 segundos después de
+   que vuelven todos, y cada bot avisa "listo" apenas entra al equipo, así
+   el primer INICIAR ya sirve.
+ - Si el líder se desconecta, la escuadra lo espera 60 segundos (antes 90).
+ - Modo de juego: si el modo elegido ya había fallado y vuelve a fallar
+   después de la hora de Battle Royale clásico, ahora vuelve a BR con una
+   sola ronda fallida (antes perdía unos 5 minutos cada hora).
+ - Panel: estados nuevos "Murió · mira a su escuadra", "En el equipo",
+   "Esperando a su líder" y "Armando el equipo".
+
+ Pruebas que se hicieron (sin conectarse al juego real):
+   - Pruebas de la lógica de escuadras: todo OK.
+   - 12 simulaciones de 1 hora con fallos al crear, al buscar, líder que
+     se cae, equipos viejos, etc.: todas OK, sin partidas con bots de otra
+     escuadra.
+   - Creación de bots con fallos de Garena simulados: se reintentó solo y
+     salieron los 4 bots, con nombre user_xxxxxx.
+   - Arranque limpio: la página principal responde sin contraseña, /admin y
+     toda la parte de control piden contraseña.
+
+v13.4 (escuadras: líder fijo, se disuelven y se arman de nuevo cada partida)
+ - Arregla la v13.3: el aviso que usaba para "salir del equipo" no era el del
+   juego, así que los líderes no podían crear el equipo nuevo y las
+   invitaciones no les llegaban a los demás (se quedaban "En línea").
+   Ahora usa el aviso real de "Salir del equipo".
+ - Cada escuadra tiene UN líder fijo: el primer bot de la escuadra (el de
+   arriba en el panel). Solo él crea el equipo, invita y le da a INICIAR.
+   Ya no le pasa el mando a otro bot cuando tarda en encontrar partida.
+ - Al terminar la partida cada bot sale del equipo y queda solo. Cuando
+   volvieron todos, el líder crea un equipo nuevo, invita a los suyos y
+   arranca apenas aceptan (con 3 o con 4, según cuántos tenga la escuadra).
+ - Al conectarse, cada bot sale de cualquier equipo viejo (de la sesión
+   anterior o de antes de cortarse). Si el juego lo dejaba en su equipo
+   viejo, la invitación de su líder no le llegaba.
+ - Cada miembro acepta UNA sola vez la invitación que su líder le acaba de
+   mandar. Los avisos viejos o repetidos del juego ya no se aceptan (aceptar
+   dos veces lo sacaba del equipo y cortaba la búsqueda).
+ - Con algunos ID de cuenta, el bot leía la invitación como si fuera texto
+   y la perdía: esa escuadra nunca se armaba. Ahora la vuelve a leer bien.
+ - Si el líder se desconecta, la escuadra lo espera 90 s. Si no vuelve, el
+   siguiente bot lleva el equipo mientras tanto y se lo devuelve al líder
+   cuando vuelve (al empezar la siguiente ronda, nunca a mitad de búsqueda).
+   Si el juego lo desconecta a cada rato (cuenta bloqueada), no le quita el
+   mando a los demás: tiene que aguantar 20 s conectado.
+ - Un bot que se desconectaba seguía "llevando" su escuadra mientras esperaba
+   para reconectar (hasta 30 s con la conexión muerta). Ahora suelta todo
+   apenas se corta.
+ - Modo de juego: si el modo elegido en MODO_JUEGO no arma equipo o no
+   encuentra partida 2 veces seguidas, esa escuadra juega Battle Royale
+   clásico 1 hora y después vuelve a probar. Así nunca se queda parada.
+   (Los números de duelo 3 y 5 no los publica Garena; si tu duelo no
+   funciona, verás en la consola que se pasó a Battle Royale clásico.)
+ - Si entras tú al equipo ("Entrar yo"), durante 1 hora los bots no se
+   salen al terminar la partida: siguen jugando contigo.
+ - CPU: dentro de la partida ya no se descifran las posiciones de todos los
+   jugadores (eso había vuelto a subir el CPU y no servía para nada).
+   Prueba con 16 bots en partida y el movimiento prendido: 9% antes, 4% ahora.
+ - Consola más clara: se quitó "entró al equipo (iba atascado)", que salía
+   en cada conexión aunque no fuera cierto, y el aviso de código repetido.
+ - Probado sin el juego: con un simulador del juego (12 situaciones: bots
+   que se caen, invitaciones perdidas, equipos viejos, modo que no sirve,
+   líder que se va y vuelve...) y con el main.py real contra un juego
+   falso en esta computadora: en las pruebas normales todas las partidas
+   salieron con los 4 de la escuadra,
+   ninguna invitación aceptada dos veces, ningún equipo mezclado.
+
+v13.2 (el bot gasta MUCHO menos CPU)
+ - Dentro de la partida, el servidor del juego le manda a cada bot decenas
+   de avisos por segundo (dónde está cada jugador, disparos, objetos...).
+   El bot los descifraba TODOS, uno por uno, aunque no usa nada de eso.
+   Eso era lo que subía el CPU a más de 100%.
+ - Ahora solo mira la "etiqueta" de cada aviso (eso ya dice qué es) y
+   descifra únicamente los pocos que sí necesita: saludo, confirmación,
+   ping, fin de partida. El cifrado que sí se usa va 2 veces más rápido.
+ - Prueba con 16 bots en partida contra un servidor de prueba:
+     25 avisos por segundo a cada bot: antes 44% de CPU, ahora 4%.
+     50 avisos por segundo a cada bot: antes 80% de CPU, ahora 5%.
+   (En tu hosting los números cambian, pero la diferencia es parecida.)
+ - Como el bot ya no se ahoga, tampoco se atrasa con los avisos del equipo
+   (invitar, aceptar, iniciar) mientras otras escuadras están jugando.
+ - Se comprobó con miles de paquetes que lo nuevo da exactamente lo mismo
+   que antes. Todo lo demás es igual que la v13.1 (escuadras, panel, clanes).
+
+v13.1 (solo instalador y guía, el bot es igual que la v13)
+ - instalar-oracle.sh ahora sirve también en Oracle Linux (antes solo
+   Ubuntu), en máquinas ARM y AMD.
+ - Si la máquina tiene poca RAM (como la AMD chiquita de 1 GB), le
+   agrega 2 GB de memoria extra (swap) para que no se quede sin memoria.
+ - ORACLE.txt: qué hacer con la máquina AMD chiquita y qué usuario usar
+   (ubuntu u opc).
+
+
+POR QUÉ LAS ESCUADRAS SE QUEDABAN HORAS "EN EQUIPO" SIN INICIAR
+---------------------------------------------------------------
+Se revisó todo el sistema de escuadras desde cero. Eran 3 errores juntos:
+
+1) UNA MARCA QUE NUNCA SE BORRABA.
+   Cuando un bot entraba a partida se marcaba "en partida". Si algo fallaba
+   al entrar, esa marca se quedaba puesta para siempre. El líder esperaba a
+   que ese bot "terminara la partida"... y nunca terminaba. Escuadra parada.
+
+2) MIENTRAS ESPERABA, DESHACÍA EL EQUIPO.
+   El reloj de "no encuentra partida" seguía corriendo durante esa espera.
+   Cada 100 s deshacía el equipo, invitaba a todos y cambiaba de líder. El
+   líder nuevo heredaba la misma marca rota y también se quedaba parado.
+   (Por eso veías coronas cambiando y "no encuentran partida" en la consola.)
+
+3) LOS MIEMBROS VOLVÍAN A ACEPTAR CON CUALQUIER AVISO.
+   El juego manda avisos del equipo a cada rato. Los bots adivinaban mal
+   quién los invitaba (a veces tomaban el código del equipo como si fuera
+   el líder) y volvían a aceptar. Aceptar otra vez saca al bot y lo vuelve
+   a meter, y eso corta el emparejamiento de toda la escuadra.
+
+CÓMO FUNCIONA AHORA (tal como lo pediste)
+-----------------------------------------
+ 1. El líder arma el equipo e invita a los suyos.
+ 2. Cada bot acepta SOLO la invitación de SU líder, y una sola vez por
+    equipo. Los avisos que el juego manda después no se vuelven a aceptar.
+ 3. El líder espera a que acepten (hasta 7 s). Al que no contestó lo
+    invita una vez más. Luego le da a INICIAR.
+ 4. Los miembros solo avisan "listo". Nunca inician.
+ 5. Al terminar la partida, el líder espera a que TODOS hayan salido,
+    espera 7 segundos más, revisa quién jugó con él:
+      - si jugaron todos → inicia enseguida, sin deshacer nada;
+      - si faltó uno → invita SOLO a ese, espera que acepte e inicia.
+ 6. Si un bot se desconecta y vuelve, el líder lo invita.
+ 7. Si en 150 s no encuentra partida, arma un equipo nuevo; si pasa otra
+    vez, le pasa el mando a otro bot de SU escuadra.
+ 8. Nada espera para siempre: todo tiene tope.
+
+Todo esto está en un archivo aparte, escuadra.py, y se probó con un
+simulador del juego con fallas a propósito (invitaciones perdidas,
+desconexiones, errores al entrar): entre 84 y 88 % de las partidas con
+los 4 juntos (con fallas fuertes, entre 55 y 65 %), ninguna escuadra parada
+más de unos 2 minutos, y ninguna mezcla entre escuadras. Con los errores viejos, el mismo simulador daba
+escuadras paradas más de 20 minutos.
+
+NUEVO EN EL PANEL
+-----------------
+- Pestaña SERVIDOR: CPU, RAM, disco, red, cuánto usa el bot y cuánto
+  lleva encendido. Con líneas de los últimos 6 minutos y aviso de
+  "Alto" (75 %) o "Casi lleno" (90 %). Si el hosting es un contenedor,
+  muestra el límite del hosting, que es lo que de verdad se llena.
+- Arriba en ESCUADRA: resumen CPU / RAM / Disco (tócalo para ver más).
+- Las escuadras salen AGRUPADAS POR CLAN. Con el lápiz le pones nombre.
+- Al crear una escuadra, el ID del último clan que usaste ya viene puesto.
+- Cambio de clan: eliges de qué clan salen (con botones de tus clanes) y
+  solo se mueven los bots de ese clan. Al entrar al nuevo, el panel los
+  pasa a su grupo nuevo.
+
+NUEVO: LISTO PARA VPS DE ORACLE
+-------------------------------
+- instalar-oracle.sh: instala todo y deja el bot como servicio que se
+  prende solo. Paso a paso en ORACLE.txt.
+- actualizar.sh: para poner un ZIP nuevo en el VPS sin tocar tus bots
+  (hace copia de seguridad y conserva tu .env).
+- OJO: desde junio de 2026 Oracle gratis da 2 núcleos y 12 GB (no 24).
+
+DIAGNÓSTICO
+-----------
+Los avisos de equipo que manda el juego se guardan resumidos en
+logs/equipo.log (máximo ~1 MB). Si alguna escuadra se porta raro,
+mándame ese archivo y sabré exactamente qué pasó.
+
+EL .env YA VIENE LLENO
+----------------------
+usuario: admin
+contraseña: 6uKC00-voAgKb
